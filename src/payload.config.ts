@@ -22,6 +22,12 @@ export default buildConfig({
     },
     components: {
       actions: ['/components/LogoutButton#LogoutButton'],
+      views: {
+        buy: {
+          Component: '@/components/BuyPageView/index.tsx',
+          path: '/buy',
+        },
+      },
     },
     meta: {
       titleSuffix: '- Yanyan Store',
