@@ -23,6 +23,9 @@ export default buildConfig({
     components: {
       actions: ['/components/LogoutButton#LogoutButton'],
     },
+    meta: {
+      titleSuffix: '- Yanyan Store',
+    },
   },
   collections: [Users, Media, Products, Categories, AuditLogs],
   editor: lexicalEditor(),
