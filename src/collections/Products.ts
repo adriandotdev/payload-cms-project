@@ -1,3 +1,4 @@
+import { isAdmin } from '@/access/isAdmin'
 import type { CollectionConfig } from 'payload'
 
 export const Products: CollectionConfig = {
@@ -6,9 +7,52 @@ export const Products: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    delete: ({ req: { user } }) => {
-      return Boolean(user?.role === 'admin')
-    },
+    delete: isAdmin,
+    update: isAdmin,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, previousDoc, req, operation }) => {
+        await req.payload.create({
+          collection: 'audit_logs',
+
+          data: {
+            collection: 'products',
+            action: operation,
+            documentId: doc.id,
+
+            performedBy: req.user?.id,
+
+            before: previousDoc || null,
+            after: doc,
+          },
+          context: {
+            systemLog: true,
+          },
+        })
+      },
+    ],
+    afterDelete: [
+      async ({ doc, req }) => {
+        await req.payload.create({
+          collection: 'audit_logs',
+
+          data: {
+            collection: 'products',
+            action: 'delete',
+            documentId: doc.id,
+
+            performedBy: req.user?.id,
+
+            before: doc || null,
+            after: null,
+          },
+          context: {
+            systemLog: true,
+          },
+        })
+      },
+    ],
   },
   fields: [
     {
@@ -23,7 +67,7 @@ export const Products: CollectionConfig = {
       defaultValue: 0,
       min: 0,
       hooks: {
-        afterRead: [({ value }) => parseFloat(value).toFixed(2)],
+        afterRead: [({ value }) => parseFloat(parseFloat(value).toFixed(2))],
       },
       required: true,
       validate: (value: number | null | undefined) =>

@@ -6,8 +6,6 @@ export const metadata = {
   title: 'Payload Blank Template',
 }
 
-import '../globals.css'
-
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
