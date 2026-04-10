@@ -28,6 +28,11 @@ export default buildConfig({
           path: '/buy',
         },
       },
+      afterNavLinks: [
+        {
+          path: '@/components/AfterNavLinks/index.tsx',
+        },
+      ],
     },
     meta: {
       titleSuffix: '- Yanyan Store',
