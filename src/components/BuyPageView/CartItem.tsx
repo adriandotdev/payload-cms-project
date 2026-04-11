@@ -17,7 +17,7 @@ export const CartItem: React.FC<CartItemProps> = ({
 
   const categoryBadge =
     typeof product.category === 'object' && product.category?.name ? (
-      <span className="w-fit rounded-full bg-neutral-100 px-2 py-0.5 text-base text-neutral-500">
+      <span className="w-fit rounded-full bg-black px-2 text-white font-medium py-0.5 text-base">
         {product.category.name}
       </span>
     ) : null

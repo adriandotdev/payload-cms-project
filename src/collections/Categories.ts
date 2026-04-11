@@ -16,6 +16,7 @@ export const Categories: CollectionConfig = {
       admin: {
         components: {
           Field: '@/components/ColorInput/ColorField#default',
+          Cell: '@/components/ColorInput/ColorColumnItem#ColorColumnItem',
         },
       },
     },

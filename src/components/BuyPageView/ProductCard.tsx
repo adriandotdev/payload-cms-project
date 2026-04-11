@@ -12,7 +12,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         {product.name}
       </h1>
       {typeof product.category === 'object' && product.category?.name && (
-        <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-base text-neutral-500">
+        <span className="shrink-0 rounded-full bg-black px-2 py-0.5 text-base text-white">
           {product.category.name}
         </span>
       )}
