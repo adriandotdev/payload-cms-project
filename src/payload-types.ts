@@ -72,6 +72,7 @@ export interface Config {
     products: Product;
     categories: Category;
     audit_logs: AuditLog;
+    sales: Sale;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     audit_logs: AuditLogsSelect<false> | AuditLogsSelect<true>;
+    sales: SalesSelect<false> | SalesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -224,6 +226,27 @@ export interface AuditLog {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales".
+ */
+export interface Sale {
+  id: number;
+  cashier: number | User;
+  items: {
+    product: number | Product;
+    productName: string;
+    unitPrice: number;
+    qty: number;
+    subtotal: number;
+    id?: string | null;
+  }[];
+  totalAmount: number;
+  cashTendered: number;
+  change: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -265,6 +288,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'audit_logs';
         value: number | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'sales';
+        value: number | Sale;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -381,6 +408,28 @@ export interface AuditLogsSelect<T extends boolean = true> {
   performedBy?: T;
   before?: T;
   after?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales_select".
+ */
+export interface SalesSelect<T extends boolean = true> {
+  cashier?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        productName?: T;
+        unitPrice?: T;
+        qty?: T;
+        subtotal?: T;
+        id?: T;
+      };
+  totalAmount?: T;
+  cashTendered?: T;
+  change?: T;
   updatedAt?: T;
   createdAt?: T;
 }

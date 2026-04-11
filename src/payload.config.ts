@@ -9,6 +9,7 @@ import { AuditLogs } from './collections/AuditLogs'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
+import { Sales } from './collections/Sales'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -38,7 +39,7 @@ export default buildConfig({
       titleSuffix: '- Yanyan Store',
     },
   },
-  collections: [Users, Media, Products, Categories, AuditLogs],
+  collections: [Users, Media, Products, Categories, AuditLogs, Sales],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
