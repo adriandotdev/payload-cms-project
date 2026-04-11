@@ -1,5 +1,5 @@
-// src/collections/Sales.ts
 import { isAdmin } from '@/access/isAdmin'
+import type { Sale } from '@/payload-types'
 import type { CollectionConfig } from 'payload'
 
 export const Sales: CollectionConfig = {
@@ -9,9 +9,10 @@ export const Sales: CollectionConfig = {
     defaultColumns: ['id', 'cashier', 'totalAmount', 'createdAt'],
   },
   access: {
-    create: ({ req }) => req.context.systemSale === true, // only via API endpoint
-    update: () => false, // immutable — never edit a sale
+    create: ({ req }) => req.context.salesTransaction === true,
+    update: () => false,
     delete: isAdmin,
+    read: isAdmin,
   },
   fields: [
     // Who sold it
@@ -28,6 +29,9 @@ export const Sales: CollectionConfig = {
       type: 'array',
       required: true,
       minRows: 1,
+      admin: {
+        initCollapsed: true,
+      },
       fields: [
         {
           name: 'product',
@@ -65,4 +69,24 @@ export const Sales: CollectionConfig = {
     { name: 'change', type: 'number', required: true },
   ],
   timestamps: true,
+  endpoints: [
+    {
+      path: '/confirm',
+      method: 'post',
+      handler: async (req) => {
+        if (!req.user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+        const data = await req.json?.()
+        if (!data) return Response.json({ error: 'Bad Request' }, { status: 400 })
+
+        const sale = await req.payload.create({
+          collection: 'sales',
+          data: data as Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>,
+          context: { salesTransaction: true },
+          req,
+        })
+        return Response.json(sale)
+      },
+    },
+  ],
 }

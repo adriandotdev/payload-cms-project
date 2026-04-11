@@ -2,6 +2,10 @@ import { CollectionConfig } from 'payload'
 
 export const AuditLogs: CollectionConfig = {
   slug: 'audit_logs',
+  labels: {
+    singular: 'Audit Log',
+    plural: 'Audit Logs',
+  },
   admin: {
     useAsTitle: 'action',
   },

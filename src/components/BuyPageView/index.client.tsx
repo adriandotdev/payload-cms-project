@@ -1,6 +1,7 @@
 'use client'
 
 import { Product } from '@/payload-types'
+import { useAuth } from '@payloadcms/ui'
 import { Where } from 'payload'
 import { stringify } from 'qs-esm'
 import { useEffect, useState } from 'react'
@@ -15,20 +16,27 @@ type CartItemData = {
 }
 
 export const BuyPageClient: React.FC = () => {
+  const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<Record<number, CartItemData>>({})
   const [cartOpen, setCartOpen] = useState(false)
   const [cashTendered, setCashTendered] = useState('')
+  const [open, setOpen] = useState(false)
 
   const cartItems = Object.values(cart)
   const totalItems = cartItems.reduce((sum, item) => sum + item.qty, 0)
   const totalPrice = cartItems.reduce((sum, item) => sum + item.product.price * item.qty, 0)
 
   const handleConfirm = () => {
-    setCart({})
-    setCashTendered('')
-    setCartOpen(false)
+    setOpen(true)
+    // const confirmed = window.confirm('Complete this transaction?')
+
+    // if (!confirmed) return
+
+    // setCart({})
+    // setCashTendered('')
+    // setCartOpen(false)
   }
 
   const handleUpdateQty = (product: Product, delta: number) => {
@@ -174,6 +182,114 @@ export const BuyPageClient: React.FC = () => {
               </svg>
             </div>
           </button>
+        </div>
+      )}
+      {open && (
+        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 sm:px-4">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm flex flex-col gap-4 p-6 border border-neutral-200 dark:border-gray-900">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                Confirm Transaction
+              </h2>
+              <button
+                onClick={() => setOpen(false)}
+                className="text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="size-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Items summary */}
+            <div className="flex flex-col gap-1.5 max-h-[35vh] sm:max-h-48 overflow-y-auto">
+              {cartItems.map((item) => (
+                <div key={item.product.id} className="flex items-center justify-between text-sm">
+                  <span className="text-neutral-600 dark:text-neutral-400 truncate mr-2">
+                    {item.product.name}
+                    <span className="ml-1 text-neutral-400">×{item.qty}</span>
+                  </span>
+                  <span className="font-medium text-neutral-900 dark:text-white shrink-0">
+                    ${(item.product.price * item.qty).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-neutral-100 dark:border-gray-800" />
+
+            {/* Totals */}
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Total</span>
+                <span className="font-bold text-neutral-900 dark:text-white">
+                  ${totalPrice.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Cash</span>
+                <span className="font-medium text-neutral-900 dark:text-white">
+                  ${parseFloat(cashTendered || '0').toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-500 dark:text-neutral-400">Change</span>
+                <span className="font-semibold text-green-600">
+                  ${(parseFloat(cashTendered || '0') - totalPrice).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setOpen(false)}
+                className="flex-1 rounded-xl border border-neutral-200 dark:border-gray-800 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#222222] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await fetch('/api/sales/confirm', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        cashier: user?.id,
+                        items: cartItems.map((item) => ({
+                          product: item.product.id,
+                          productName: item.product.name,
+                          unitPrice: item.product.price,
+                          qty: item.qty,
+                          subtotal: parseFloat((item.product.price * item.qty).toFixed(2)),
+                        })),
+                        totalAmount: parseFloat(totalPrice.toFixed(2)),
+                        cashTendered: parseFloat(cashTendered),
+                        change: parseFloat((parseFloat(cashTendered) - totalPrice).toFixed(2)),
+                      }),
+                    })
+                  } finally {
+                    setOpen(false)
+                    setCart({})
+                    setCashTendered('')
+                    setCartOpen(false)
+                  }
+                }}
+                className="flex-1 rounded-xl bg-neutral-900 dark:bg-white py-2.5 text-sm font-semibold text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-200 transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
