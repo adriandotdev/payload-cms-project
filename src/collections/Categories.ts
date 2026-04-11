@@ -10,5 +10,14 @@ export const Categories: CollectionConfig = {
       type: 'text',
       name: 'name',
     },
+    {
+      type: 'text',
+      name: 'color',
+      admin: {
+        components: {
+          Field: '@/components/ColorInput/ColorField#default',
+        },
+      },
+    },
   ],
 }
