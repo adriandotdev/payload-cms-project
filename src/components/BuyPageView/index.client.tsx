@@ -84,9 +84,16 @@ export const BuyPageClient: React.FC = () => {
   }, [search])
 
   useEffect(() => {
+    const handleWindowResize = () => {
+      setCartOpen(false)
+    }
+
+    window.addEventListener('resize', handleWindowResize)
+
     if (cartOpen) document.body.style.overflowY = 'hidden'
     else document.body.style.overflowY = 'auto'
     return () => {
+      window.removeEventListener('resize', handleWindowResize)
       document.body.style.overflowY = 'auto'
     }
   }, [cartOpen])
